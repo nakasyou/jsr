@@ -74,7 +74,7 @@ export function PackageHeader(
         </div>
       )}
 
-      <div class="flex flex-col md:flex-row items-start justify-between gap-6">
+      <div class="flex flex-col flex-wrap md:flex-row items-start justify-between gap-6">
         <div class="space-y-3.5 flex-shrink">
           <div class="flex flex-row gap-x-3 gap-y-2 flex-wrap md:items-center">
             <h1 class="text-2xl md:text-3xl flex flex-wrap items-center font-sans gap-x-2">
@@ -82,7 +82,7 @@ export function PackageHeader(
                 <span>
                   <a
                     href={`/@${pkg.scope}`}
-                    class="link font-bold no-underline"
+                    class="link font-bold pr-1 no-underline"
                     aria-label={`Scope: @${pkg.scope}`}
                   >
                     @{pkg.scope}
@@ -132,7 +132,7 @@ export function PackageHeader(
 
               {pkg.githubRepository && (
                 <a
-                  class="chip sm:big-chip bg-jsr-gray-0 !inline-flex items-center gap-1 select-none"
+                  class="chip sm:big-chip bg-jsr-gray-100 !inline-flex items-center gap-1 select-none"
                   href={`https://github.com/${pkg.githubRepository.owner}/${pkg.githubRepository.name}`}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -149,11 +149,13 @@ export function PackageHeader(
           </div>
 
           {pkg.description && (
-            <p class="text-gray-600 max-w-3xl md:!mb-8">{pkg.description}</p>
+            <p class="text-jsr-gray-600 max-w-3xl md:!mb-8">
+              {pkg.description}
+            </p>
           )}
         </div>
 
-        <div class="flex flex-none md:items-end flex-col gap-2 md:gap-4 text-right pb-4">
+        <div class="flex flex-none md:items-end flex-col gap-2 md:gap-4 text-right pb-4 md:ml-auto">
           <div class="flex flex-col md:flex-row gap-2 md:gap-8 items-between">
             {runtimeCompat &&
               (
