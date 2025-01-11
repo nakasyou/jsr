@@ -27,7 +27,7 @@ export function ListPanel(
           </div>
         )}
       </div>
-      <ol class="border-1.5 border-jsr-cyan-950 dark:border-jsr-cyan-100 rounded list-none overflow-hidden">
+      <ol class="border-1.5 border-jsr-cyan-950 dark:border-jsr-cyan-800 rounded list-none overflow-hidden">
         {children.map((entry) => {
           return (
             <li

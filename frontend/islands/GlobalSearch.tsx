@@ -313,12 +313,16 @@ function SuggestionList(
   if (!showSuggestions.value) return null;
 
   return (
-    <div class="absolute bg-white w-full sibling:bg-red-500 border-1.5 border-jsr-cyan-950 rounded-lg z-40 overflow-hidden top-0.5">
+    <div class="absolute bg-white dark:bg-jsr-cyan-900 w-full sibling:bg-red-500 border-1.5 border-jsr-cyan-950 rounded-lg z-40 overflow-hidden top-0.5">
       {suggestions.value === null
-        ? <div class="bg-white text-jsr-gray-500 px-4">...</div>
+        ? (
+          <div class="text-jsr-gray-500 dark:text-cyan-100 px-4">
+            ...
+          </div>
+        )
         : suggestions.value?.length === 0
         ? (
-          <div class="bg-white text-jsr-gray-500 px-4 py-2">
+          <div class="text-jsr-gray-500 dark:text-cyan-100 px-4 py-2">
             No matching results to display
           </div>
         )
@@ -333,7 +337,7 @@ function SuggestionList(
               return (
                 <li
                   key={i}
-                  class="p-2 hover:bg-jsr-gray-100 cursor-pointer aria-[selected=true]:bg-jsr-cyan-100"
+                  class="p-2 hover:bg-jsr-gray-100 dark:hover:bg-jsr-cyan-800 cursor-pointer aria-[selected=true]:bg-jsr-cyan-100 dark:aria-[selected=true]:bg-jsr-cyan-800"
                   aria-selected={selected}
                 >
                   <a href={hit.href} class="bg-red-600">
@@ -344,11 +348,13 @@ function SuggestionList(
             })}
           </ul>
         )}
-      <div class="bg-jsr-gray-50 flex items-center justify-end py-1 px-2 gap-1">
-        <span class="text-sm text-jsr-gray-500">
-          powered by <span class="sr-only">Orama</span>
-        </span>
-        <img class="h-4" src="/logos/orama-dark.svg" alt="" />
+      <div class="flex items-center justify-end ">
+        <div class="dark:bg-jsr-cyan-50  dark:rounded flex items-center justify-end py-1 px-2 gap-1">
+          <span class="text-sm text-jsr-gray-500 dark:text-jsr-gray-900">
+            powered by <span class="sr-only">Orama</span>
+          </span>
+          <img class="h-4" src="/logos/orama-dark.svg" alt="" />
+        </div>
       </div>
     </div>
   );

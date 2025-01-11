@@ -187,19 +187,19 @@
   .input-container input:not([data-locked="true"]):disabled,
   .input-container select:not([data-locked="true"]):disabled {
     @apply border-jsr-gray-300 text-jsr-gray-300 cursor-not-allowed
-      bg-jsr-gray-50;
+      opacity-60;
   }
 
   select[data-locked="true"].input-container,
   input[data-locked="true"].input-container,
   .input-container input[data-locked="true"],
   .input-container select[data-locked="true"] {
-    @apply text-jsr-gray-500 cursor-not-allowed bg-jsr-gray-50;
+    @apply text-jsr-gray-500 cursor-not-allowed opacity-60;
   }
 
   .input {
     @apply placeholder:text-jsr-gray-400 disabled:placeholder:text-jsr-gray-300
-      outline-none bg-transparent disabled:cursor-not-allowed dark:text-black dark:bg-white;
+      outline-none bg-transparent disabled:cursor-not-allowed dark:text-white;
   }
 
   .search-input {
@@ -218,6 +218,9 @@
 body .ddoc {
   .markdown {
     @apply max-w-prose;
+    
+    --color-border-muted: #0000ff !important; /* local variable will override global */
+    --color-border-default: #0000ff !important; /* local variable will override global */
 
     h1 {
       @apply mt-8 -mx-4 px-4 md:mx-0 md:px-0 text-3xl md:text-4xl font-semibold
@@ -231,7 +234,7 @@ body .ddoc {
 
     h2 {
       @apply mt-8 -mx-4 px-4 md:mx-0 md:px-0 text-xl md:text-2xl font-bold
-        md:font-medium !important;
+        md:font-medium dark:border-b-jsr-cyan-900 !important;
     }
 
     h3 {
@@ -285,7 +288,7 @@ body .ddoc {
   }
 
   .symbolGroup article a.context_button {
-    @apply border-none hover:bg-jsr-cyan-50;
+    @apply border-none hover:bg-jsr-cyan-50 dark:hover:bg-jsr-cyan-950;
   }
 
   .docEntryHeader a {
@@ -301,11 +304,15 @@ body .ddoc {
   .usages {
     nav details {
       > summary {
-        @apply border-jsr-cyan-300/50 bg-jsr-cyan-50;
+        @apply border-jsr-cyan-300/50 bg-jsr-cyan-50 dark:bg-jsr-cyan-900 dark:text-white;
       }
 
       > div > div {
-        @apply border-jsr-cyan-200;
+        @apply border-jsr-cyan-200 dark:text-white dark:bg-jsr-cyan-950;
+
+        label {
+          @apply dark:hover:bg-jsr-cyan-900 dark:checked:bg-jsr-cyan-900 !important;
+        }
       }
     }
 
@@ -316,6 +323,10 @@ body .ddoc {
 
   .usageContent .markdown {
     @apply max-w-full;
+
+    pre {
+      @apply dark:text-white dark:bg-jsr-cyan-950;
+    }
   }
 
   /* START Upstream to deno_doc  */
@@ -326,7 +337,7 @@ body .ddoc {
   }
 
   .context_button {
-    @apply rounded no-underline !important;
+    @apply rounded no-underline dark:text-white !important;
   }
 
   code ~ .context_button:hover, code:hover ~ .context_button {
@@ -415,7 +426,7 @@ body .ddoc:has(.toc) {
 }
 
 .score-text-yellow {
-  @apply text-jsr-yellow-700;
+  @apply text-jsr-yellow-700 dark:text-jsr-yellow-500;
 }
 
 .score-text-green {
@@ -436,6 +447,10 @@ body .ddoc:has(.toc) {
 .markdown-body {
   @apply dark:bg-jsr-cyan-1000 dark:text-white !important;
 
+  h2 {
+    @apply dark:border-b-jsr-cyan-900 !important;
+  }
+
   a {
     @apply dark:text-jsr-cyan-300 !important;
   }
@@ -449,7 +464,7 @@ body .ddoc:has(.toc) {
   }
 
   pre {
-    @apply dark:bg-jsr-cyan-1000/90 dark:text-jsr-cyan-100 !important;
+    @apply dark:bg-jsr-cyan-1000/90 dark:text-jsr-cyan-100 dark:border-jsr-cyan-900 !important;
  
     .token {
       @apply dark:brightness-[2.5] dark:saturate-[1.75] dark:contrast-[0.8] dark:hue-rotate-[290deg] !important;

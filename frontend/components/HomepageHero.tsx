@@ -40,13 +40,13 @@ export function HomepageHero(
             <AnimatedLogo />
             <div class=" pointer-events-auto text-2xl text-balance leading-[1.1] sm:text-3xl md:text-3xl lg:text-4xl opsize-normal md:opsize-sm text-center -mt-5 md:-mt-6 max-w-[20em] [text-shadow:_0em_0em_0.5em_white] dark:[text-shadow:_0em_0em_0.5em_black]">
               The{" "}
-              <b class="font-semibold text-jsr-gray-900 dark:text-jsr-gray-400">
+              <b class="font-semibold text-jsr-gray-900 dark:text-jsr-yellow-400">
                 open-source package registry
               </b>{" "}
               for modern JavaScript and TypeScript
             </div>
           </h1>
-          <div class="flex flex-row gap-3 items-center justify-center mt-4 pointer-events-auto [text-shadow:_0em_0em_0.5em_white] dark:[text-shadow:_0em_0em_0.5em_black]">
+          <div class="flex flex-row gap-3 items-center justify-center mt-4 pointer-events-auto [text-shadow:_0em_0em_0.5em_white] dark:[text-shadow:_0em_0.5em_0.5em_black]">
             <a class="underline text-sm relative z-10" href="/docs">
               Docs
             </a>
