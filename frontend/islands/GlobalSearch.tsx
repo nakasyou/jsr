@@ -233,7 +233,7 @@ export function GlobalSearch(
         <input
           type="search"
           name="search"
-          class={`block w-full search-input bg-white/90 input rounded-r-none ${sizeClasses} relative`}
+          class={`block w-full search-input bg-white/70  dark:bg-jsr-cyan-1000/70 backdrop-blur-sm input rounded-r-none ${sizeClasses} relative`}
           placeholder={placeholder}
           value={query}
           onInput={onInput}

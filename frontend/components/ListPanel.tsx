@@ -36,7 +36,7 @@ export function ListPanel(
                 : ""}
             >
               <a
-                class={`flex px-4 items-center py-3 group focus-visible:ring-2 ring-jsr-cyan-700 ring-inset outline-none hover:bg-jsr-yellow-200 focus-visible:bg-jsr-yellow-200 ${
+                class={`flex px-4 items-center py-3 group focus-visible:ring-2 ring-jsr-cyan-700 ring-inset outline-none hover:bg-jsr-yellow-200 focus-visible:bg-jsr-yellow-200 dark:hover:bg-jsr-yellow-500 dark:focus-visible:bg-jsr-yellow-500 ${
                   entry.value === selected ? "text-jsr-cyan-700 font-bold" : ""
                 }`}
                 href={entry.href}

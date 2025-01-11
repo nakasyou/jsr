@@ -434,15 +434,35 @@ body .ddoc:has(.toc) {
 
 /* Overwrite GFM Style for Dark Mode */
 .markdown-body {
-  @apply dark:bg-jsr-cyan-950 dark:text-white !important;
-}
-.markdown-body a {
-  @apply dark:text-jsr-cyan-300 !important;
-}
-.markdown-body code:not(pre code) {
-  @apply dark:bg-jsr-gray-500 !important;
-}
+  @apply dark:bg-jsr-cyan-1000 dark:text-white !important;
 
+  a {
+    @apply dark:text-jsr-cyan-300 !important;
+  }
+
+  blockquote {
+    @apply dark:bg-jsr-cyan-950 dark:text-jsr-cyan-100 !important;
+  }
+
+  code:not(pre code) {
+    @apply dark:bg-jsr-cyan-950 dark:text-jsr-cyan-100 !important;
+  }
+
+  pre {
+    @apply dark:bg-jsr-cyan-1000/90 dark:text-jsr-cyan-100 !important;
+ 
+    .token {
+      @apply dark:brightness-[2.5] dark:saturate-[1.75] dark:contrast-[0.8] dark:hue-rotate-[290deg] !important;
+    }
+
+    .inserted, .deleted {
+      &, * {
+        @apply dark:brightness-[0.70] dark:saturate-[1.85] dark:opacity-80 dark:contrast-[1.5] dark:hue-rotate-[0deg] !important;
+      }
+    }
+  }
+
+}
 @layer base {
   /* I hate having all these !important tags, but it's the only way to override some of the GFM styles */
   :root {
