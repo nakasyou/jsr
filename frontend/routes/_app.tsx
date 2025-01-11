@@ -30,7 +30,7 @@ export default async function App(
           href={asset("/logo-square.svg")}
         />
       </head>
-      <body class="dark:bg-jsr-cyan-950 dark:text-white">
+      <body class="dark:bg-jsr-cyan-1000 dark:text-white">
         <Component />
       </body>
     </html>
