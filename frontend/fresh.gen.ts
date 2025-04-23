@@ -61,6 +61,7 @@ import * as $GlobalSearch from "./islands/GlobalSearch.tsx";
 import * as $HeaderLogo from "./islands/HeaderLogo.tsx";
 import * as $HomepageHeroParticles from "./islands/HomepageHeroParticles.tsx";
 import * as $PublishingTaskRequeue from "./islands/PublishingTaskRequeue.tsx";
+import * as $ThemeSwitcher from "./islands/ThemeSwitcher.tsx";
 import * as $UserManageScopeInvite from "./islands/UserManageScopeInvite.tsx";
 import * as $UserMenu from "./islands/UserMenu.tsx";
 import * as $admin_ScopeEdit from "./islands/admin/ScopeEdit.tsx";
@@ -141,6 +142,7 @@ const manifest = {
     "./islands/HeaderLogo.tsx": $HeaderLogo,
     "./islands/HomepageHeroParticles.tsx": $HomepageHeroParticles,
     "./islands/PublishingTaskRequeue.tsx": $PublishingTaskRequeue,
+    "./islands/ThemeSwitcher.tsx": $ThemeSwitcher,
     "./islands/UserManageScopeInvite.tsx": $UserManageScopeInvite,
     "./islands/UserMenu.tsx": $UserMenu,
     "./islands/admin/ScopeEdit.tsx": $admin_ScopeEdit,

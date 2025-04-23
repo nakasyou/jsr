@@ -6,6 +6,12 @@ import tailwindPkgJson from "tailwindcss/package.json" with { type: "json" };
 import postcss from "postcss";
 
 export default {
+  darkMode: "selector",
+  /*
+  darkMode: ["variant", [
+    "&:is(.dark *)",
+    "@media (prefers-color-scheme: dark) { &:not(.light) }",
+  ]],*/
   content: [
     "{routes,islands,components}/**/*.{ts,tsx}",
   ],
@@ -91,6 +97,7 @@ export default {
           "800": "#155775",
           "900": "#164d64",
           "950": "#083344",
+          "1000": "#051f2a",
         },
         "magenta": {
           50: "#FCE7F3",

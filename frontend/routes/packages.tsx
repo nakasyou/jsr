@@ -44,8 +44,10 @@ export default function PackageListPage({
             Changes made in the last 15 minutes may not be visible yet. Packages
             with no published versions are not shown.
           </span>
-          <div class="flex items-center gap-1">
-            <span className="text-sm text-jsr-gray-500">powered by</span>
+          <div class="flex items-center gap-1 dark:bg-jsr-cyan-50 dark:p-1 dark:px-2 dark:rounded">
+            <span className="text-sm text-jsr-gray-500 ">
+              powered by
+            </span>
             <span className="sr-only">Orama</span>
             <img className="h-4" src="/logos/orama-dark.svg" alt="" />
           </div>

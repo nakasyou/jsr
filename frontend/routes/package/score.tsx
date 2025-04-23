@@ -85,7 +85,7 @@ function ScoreInfo(props: {
 
   return (
     <div class="mt-8 grid items-center justify-items-center grid-cols-1 md:grid-cols-3 gap-12">
-      <div class="w-full h-full flex flex-col items-center justify-center border-1.5 border-jsr-cyan-100 rounded-lg p-8">
+      <div class="w-full h-full flex flex-col items-center justify-center border-1.5 border-jsr-cyan-100 dark:border-jsr-cyan-900 rounded-lg p-8">
         <div class="flex gap-2 items-center mb-4">
           <h2 class="text-2xl font-semibold">
             <Logo size="medium" class="inline mr-2" />
@@ -112,7 +112,7 @@ function ScoreInfo(props: {
         </div>
       </div>
 
-      <ul class="flex flex-col divide-jsr-cyan-100 divide-y-1 md:col-span-2 w-full">
+      <ul class="flex flex-col divide-jsr-cyan-100 dark:divide-jsr-cyan-900 divide-y-1 md:col-span-2 w-full">
         <ScoreItem
           value={score.hasReadme}
           scoreValue={2}

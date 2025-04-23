@@ -1,6 +1,7 @@
 // Copyright 2024 the JSR authors. All rights reserved. MIT license.
 import { PageProps } from "$fresh/server.ts";
 import { Header } from "../components/Header.tsx";
+import { ThemeSwitcher } from "../islands/ThemeSwitcher.tsx";
 import { State } from "../util.ts";
 
 export default function Layout(
@@ -9,10 +10,7 @@ export default function Layout(
   const currentDatetime = new Date();
   return (
     <>
-      <div
-        class="min-h-[calc(100vh-3rem)]"
-        data-dark-theme="dark"
-      >
+      <div class="min-h-[calc(100vh-3rem)]">
         <a
           href="#main-content"
           class="absolute p-4 -translate-y-full bg-jsr-cyan-100 font-medium focus:translate-y-0 transition-transform duration-100	z-20"
@@ -35,7 +33,7 @@ export default function Layout(
       </div>
       <footer
         id="footer"
-        class="text-xs text-center mt-4 md:mt-6 p-4 text-jsr-gray-500 dark:bg-jsr-cyan-950 dark:text-jsr-gray-200"
+        class="text-xs text-center mt-4 md:mt-6 p-4 "
       >
         JSR - It is{" "}
         <time datetime={currentDatetime.toISOString()}>
@@ -59,6 +57,8 @@ export default function Layout(
           <span>GitHub</span>
         </a>
         {state?.span.isSampled ? ` — x-deno-ray: ${state.span.traceId}` : null}
+
+        <ThemeSwitcher />
       </footer>
     </>
   );

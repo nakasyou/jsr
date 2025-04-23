@@ -14,10 +14,10 @@ export function PackageHit(pkg: OramaPackageHit | Package): ListDisplayItem {
     content: (
       <div class="grow-1 w-full flex flex-col md:flex-row gap-2 justify-between">
         <div class="grow-1">
-          <div class="text-jsr-cyan-700 dark:text-jsr-cyan-300 font-semibold">
+          <div class="text-jsr-cyan-700 dark:text-jsr-cyan-300 group-focus:dark:text-jsr-cyan-900 group-hover:dark:text-jsr-cyan-900 font-semibold">
             {`@${pkg.scope}/${pkg.name}`}
           </div>
-          <div class="text-sm text-jsr-gray-600 dark:text-jsr-gray-200">
+          <div class="text-sm text-jsr-gray-600 dark:text-jsr-gray-200 group-focus:dark:text-jsr-cyan-800 group-hover:dark:text-jsr-cyan-800">
             {pkg.description}
           </div>
         </div>

@@ -25,7 +25,7 @@ export function HomepageHero(
 ) {
   return (
     <div
-      class="w-screen -ml-[calc(50vw-50%)] -mt-6 bg-repeat py-32 lg:pt-48 relative before:absolute before:left-0 before:right-0 before:h-32 before:bg-gradient-to-t before:from-white dark:before:from-jsr-cyan-950 before:bottom-0 before:z-10 before:pointer-events-none"
+      class="w-screen -ml-[calc(50vw-50%)] -mt-6 bg-repeat py-32 lg:pt-48 relative before:absolute before:left-0 before:right-0 before:h-32 before:bg-gradient-to-t before:from-white dark:before:from-jsr-cyan-1000 before:bottom-0 before:z-10 before:pointer-events-none"
       id="particles-js"
     >
       <HomepageHeroParticles />
@@ -38,21 +38,15 @@ export function HomepageHero(
           <h1 class="relative z-10 flex flex-col items-center gap-6 lg:gap-8">
             <span className="sr-only">JSR</span>
             <AnimatedLogo />
-            <div
-              class="pointer-events-auto text-2xl text-balance leading-[1.1] sm:text-3xl md:text-3xl lg:text-4xl opsize-normal md:opsize-sm text-center -mt-5 md:-mt-6 max-w-[20em]"
-              style="text-shadow: 0 0 2em white, 0 0 1em white, 0 0 0.5em white, 0 0 0.25em white, 0 0 3em white, 0 0 0.5em white;"
-            >
+            <div class=" pointer-events-auto text-2xl text-balance leading-[1.1] sm:text-3xl md:text-3xl lg:text-4xl opsize-normal md:opsize-sm text-center -mt-5 md:-mt-6 max-w-[20em] [text-shadow:_0em_0em_0.5em_white] dark:[text-shadow:_0em_0em_0.5em_black]">
               The{" "}
-              <b class="font-semibold text-jsr-gray-900">
+              <b class="font-semibold text-jsr-gray-900 dark:text-jsr-yellow-400">
                 open-source package registry
               </b>{" "}
               for modern JavaScript and TypeScript
             </div>
           </h1>
-          <div
-            class="flex flex-row gap-3 items-center justify-center mt-4 pointer-events-auto"
-            style="text-shadow: 0 0 2em white, 0 0 1em white, 0 0 0.5em white, 0 0 0.25em white, 0 0 3em white, 0 0 0.5em white;"
-          >
+          <div class="flex flex-row gap-3 items-center justify-center mt-4 pointer-events-auto [text-shadow:_0em_0em_0.5em_white] dark:[text-shadow:_0em_0.5em_0.5em_black]">
             <a class="underline text-sm relative z-10" href="/docs">
               Docs
             </a>
