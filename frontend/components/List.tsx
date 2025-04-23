@@ -1,7 +1,6 @@
 // Copyright 2024 the JSR authors. All rights reserved. MIT license.
 import { PaginationData } from "../util.ts";
-import { Head } from "$fresh/src/runtime/head.ts";
-import { ChevronRight } from "./icons/ChevronRight.tsx";
+import TbChevronRight from "tb-icons/TbChevronRight";
 import { ComponentChildren } from "preact";
 
 export interface ListDisplayItem {
@@ -39,7 +38,7 @@ export function ListDisplay(
             >
               {item.content}
 
-              <ChevronRight class="text-jsr-cyan-800 dark:text-jsr-cyan-200 group-hover:dark:text-jsr-cyan-950 flex-shrink-0" />
+              <TbChevronRight class="text-jsr-cyan-800 dark:text-jsr-cyan-200 group-hover:dark:text-jsr-cyan-950 flex-shrink-0 size-6" />
             </a>
           </li>
         ))}
@@ -92,18 +91,6 @@ function Pagination(
       class="flex items-center justify-between border-t border-jsr-cyan-900/10  dark:border-jsr-cyan-800 bg-white dark:bg-jsr-cyan-950 px-4 py-3 sm:px-6"
       aria-label="Pagination"
     >
-      <Head>
-        {hasPrevious && (
-          <link rel="prev" href={prevURL.pathname + prevURL.search} />
-        )}
-        {hasNext && (
-          <link
-            rel="next"
-            href={nextURL.pathname + nextURL.search}
-          />
-        )}
-      </Head>
-
       <div class="hidden sm:block">
         <p class="text-sm text-jsr-gray-700 dark:text-jsr-gray-200">
           {start + itemsCount === 0 ? "No results found" : (
@@ -117,7 +104,7 @@ function Pagination(
         </p>
       </div>
       <div class="flex flex-1 justify-between sm:justify-end gap-2">
-        {pagination.page > 1
+        {hasPrevious
           ? (
             <PaginationButton
               href={prevURL.pathname + prevURL.search}
@@ -126,7 +113,7 @@ function Pagination(
             </PaginationButton>
           )
           : <span />}
-        {itemsCount >= pagination.limit
+        {hasNext
           ? (
             <PaginationButton
               href={nextURL.pathname + nextURL.search}

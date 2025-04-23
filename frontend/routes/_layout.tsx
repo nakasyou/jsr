@@ -1,5 +1,5 @@
 // Copyright 2024 the JSR authors. All rights reserved. MIT license.
-import { PageProps } from "$fresh/server.ts";
+import { PageProps } from "fresh";
 import { Header } from "../components/Header.tsx";
 import { ThemeSwitcher } from "../islands/ThemeSwitcher.tsx";
 import { State } from "../util.ts";
@@ -10,7 +10,11 @@ export default function Layout(
   const currentDatetime = new Date();
   return (
     <>
-      <div class="min-h-[calc(100vh-3rem)]">
+      <div
+        class="min-h-[calc(100vh-4rem)] md:min-h-[calc(100vh-4.5rem)]"
+        style="container: page / inline-size"
+        data-dark-theme="light"
+      >
         <a
           href="#main-content"
           class="absolute p-4 -translate-y-full bg-jsr-cyan-100 font-medium focus:translate-y-0 transition-transform duration-100	z-20"
@@ -33,7 +37,7 @@ export default function Layout(
       </div>
       <footer
         id="footer"
-        class="text-xs text-center mt-4 md:mt-6 p-4 "
+        class="text-xs text-center mt-4 md:mt-6 md:p-4 p-2 text-jsr-gray-500"
       >
         JSR - It is{" "}
         <time datetime={currentDatetime.toISOString()}>
@@ -55,10 +59,36 @@ export default function Layout(
           class="text-jsr-cyan-700 hover:text-blue-400 underline"
         >
           <span>GitHub</span>
+        </a>{" "}
+        -{" "}
+        <a
+          href="https://discord.gg/hMqvhAn9xG"
+          class="text-jsr-cyan-700 hover:text-blue-400 underline"
+        >
+          <span>Discord</span>
+        </a>{" "}
+        -{" "}
+        <a
+          href="https://bsky.app/profile/jsr.io"
+          class="text-jsr-cyan-700 hover:text-blue-400 underline"
+        >
+          <span>Bluesky</span>
+        </a>{" "}
+        -{" "}
+        <a
+          href="https://x.com/jsr_io"
+          class="text-jsr-cyan-700 hover:text-blue-400 underline"
+        >
+          <span>X (ex Twitter)</span>
+        </a>{" "}
+        -{" "}
+        <a
+          href="https://www.youtube.com/@jsr-io"
+          class="text-jsr-cyan-700 hover:text-blue-400 underline"
+        >
+          <span>YouTube</span>
         </a>
-        {state?.span.isSampled ? ` — x-deno-ray: ${state.span.traceId}` : null}
-
-        <ThemeSwitcher />
+        {state.span?.isSampled ? ` — x-deno-ray: ${state.span.traceId}` : null}
       </footer>
     </>
   );

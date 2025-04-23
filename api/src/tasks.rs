@@ -6,6 +6,8 @@ use chrono::DateTime;
 use chrono::Utc;
 use deno_semver::package::PackageReq;
 use deno_semver::package::PackageReqReference;
+use deno_semver::package::PackageSubPath;
+use deno_semver::StackString;
 use deno_semver::VersionReq;
 use futures::stream;
 use futures::StreamExt;
@@ -107,7 +109,7 @@ pub async fn npm_tarball_build_handler(
     let version = db
       .get_package_version(&job.scope, &job.name, &job.version)
       .await?
-      .ok_or_else(|| ApiError::PackageVersionNotFound)?;
+      .ok_or(ApiError::PackageVersionNotFound)?;
     let dependencies = db
       .list_package_version_dependencies(&job.scope, &job.name, &job.version)
       .await?;
@@ -124,12 +126,12 @@ pub async fn npm_tarball_build_handler(
         let sub_path = if dep.dependency_path.is_empty() {
           None
         } else {
-          Some(dep.dependency_path)
+          Some(PackageSubPath::from_string(dep.dependency_path))
         };
         let version_req =
           VersionReq::parse_from_specifier(&dep.dependency_constraint).unwrap();
         let req = PackageReq {
-          name: dep.dependency_name,
+          name: StackString::from_string(dep.dependency_name),
           version_req,
         };
         (dep.dependency_kind, PackageReqReference { req, sub_path })
@@ -211,10 +213,7 @@ pub async fn npm_tarball_enqueue_handler(req: Request<Body>) -> ApiResult<()> {
   let db = req.data::<Database>().unwrap().clone();
   let queue = req.data::<NpmTarballBuildQueue>().unwrap();
 
-  let queue = queue
-    .0
-    .as_ref()
-    .ok_or_else(|| ApiError::InternalServerError)?;
+  let queue = queue.0.as_ref().ok_or(ApiError::InternalServerError)?;
 
   let missing_tarballs = db
     .list_missing_npm_tarballs(NPM_TARBALL_REVISION as i32)
@@ -552,8 +551,12 @@ mod tests {
     let v0_219_3 = Version::new("0.219.3").unwrap();
     let v1_0_0 = Version::new("1.0.0").unwrap();
 
-    db.create_scope(&std, Uuid::nil()).await.unwrap();
-    db.create_scope(&luca, Uuid::nil()).await.unwrap();
+    db.create_scope(&Uuid::nil(), false, &std, Uuid::nil())
+      .await
+      .unwrap();
+    db.create_scope(&Uuid::nil(), false, &luca, Uuid::nil())
+      .await
+      .unwrap();
     db.create_package(&std, &fs).await.unwrap();
     db.create_package(&luca, &flag).await.unwrap();
     db.create_package_version_for_test(NewPackageVersion {

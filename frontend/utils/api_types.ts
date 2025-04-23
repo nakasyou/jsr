@@ -15,6 +15,7 @@ export interface FullUser extends User {
   scopeUsage: number;
   scopeLimit: number;
   inviteCount: number;
+  newerTicketMessagesCount: number;
 }
 
 export interface Scope {
@@ -66,7 +67,7 @@ export interface PublishingTask {
   id: string;
   status: PublishingTaskStatus;
   error: { code: string; message: string } | null;
-  userId: string;
+  user: User | null;
   packageScope: string;
   packageName: string;
   packageVersion: string;
@@ -115,6 +116,8 @@ export interface Package {
   updatedAt: string;
   createdAt: string;
   versionCount: number;
+  dependencyCount: number;
+  dependentCount: number;
   score: number | null;
   latestVersion: string | null;
   whenFeatured: string | null;
@@ -142,6 +145,7 @@ export interface PackageVersionDocsContent {
   kind: "content";
   version: PackageVersionWithUser;
   css: string;
+  comrakCss: string;
   script: string;
   breadcrumbs: string | null;
   toc: string | null;
@@ -177,6 +181,8 @@ export interface SourceFile {
 export interface PackageVersionSource {
   version: PackageVersionWithUser;
   css: string;
+  comrakCss: string;
+  script: string;
   source: SourceDir | SourceFile;
 }
 
@@ -262,4 +268,109 @@ export interface Token {
 export interface CreatedToken {
   token: Token;
   secret: string;
+}
+
+export interface DependencyGraphJsrEntrypoint {
+  type: "entrypoint" | "path";
+  value: string;
+}
+
+export interface DependencyGraphKindJsr {
+  type: "jsr";
+  scope: string;
+  package: string;
+  version: string;
+  entrypoint: DependencyGraphJsrEntrypoint;
+}
+
+export interface DependencyGraphKindNpm {
+  type: "npm";
+  package: string;
+  version: string;
+}
+export interface DependencyGraphKindRoot {
+  type: "root";
+  path: string;
+}
+
+export interface DependencyGraphKindError {
+  type: "error";
+  error: string;
+}
+
+export type DependencyGraphKind =
+  | DependencyGraphKindJsr
+  | DependencyGraphKindNpm
+  | DependencyGraphKindRoot
+  | DependencyGraphKindError;
+
+export interface DependencyGraphItem {
+  id: number;
+  dependency: DependencyGraphKind;
+  children: number[];
+  size: number | undefined;
+  mediaType: string | undefined;
+}
+
+export type TicketKind =
+  | "user_scope_quota_increase"
+  | "scope_quota_increase"
+  | "scope_claim"
+  | "package_report"
+  | "other";
+
+export interface NewTicket {
+  kind: TicketKind;
+  meta?: Record<string, string>;
+  message: string;
+}
+
+export interface NewTicketMessage {
+  message: string;
+}
+
+export interface Ticket {
+  id: string;
+  kind: TicketKind;
+  creator: User;
+  meta: Record<string, string>;
+  closed: boolean;
+  messages: TicketMessage[];
+  updatedAt: string;
+  createdAt: string;
+}
+
+export interface TicketMessage {
+  author: User;
+  message: string;
+  updatedAt: string;
+  createdAt: string;
+}
+
+export interface AdminUpdateTicketRequest {
+  closed?: boolean;
+}
+
+export interface AuditLog {
+  actor: User;
+  isSudo: boolean;
+  action: string;
+  meta: Record<string, unknown>;
+  createdAt: string;
+}
+
+export interface PackageDownloads {
+  total: DownloadDataPoint[];
+  recentVersions: PackageDownloadsRecentVersion[];
+}
+
+export interface DownloadDataPoint {
+  timeBucket: string;
+  kind: "jsr_meta" | "npm_tarball";
+  count: number;
+}
+
+export interface PackageDownloadsRecentVersion {
+  version: string;
+  downloads: DownloadDataPoint[];
 }

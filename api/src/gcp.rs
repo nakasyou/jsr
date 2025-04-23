@@ -148,7 +148,8 @@ pub struct Bucket {
   pub(crate) endpoint: String,
 }
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, deno_error::JsError)]
+#[class(generic)]
 pub enum GcsError {
   #[error("request to GCS timed out")]
   RequestTimeout,
@@ -232,7 +233,8 @@ impl Bucket {
     Ok(bucket)
   }
 
-  #[instrument(name = "gcp::Bucket::download_resp", skip(self), err, fields(bucket = %self.name))]
+  #[instrument(name = "gcp::Bucket::download_resp", skip(self), err, fields(bucket = %self.name
+  ))]
   pub async fn download_resp(&self, path: &str) -> Result<Response, GcsError> {
     let path = percent_encoding::utf8_percent_encode(path, NON_ALPHANUMERIC);
     let url = format!(
@@ -254,7 +256,8 @@ impl Bucket {
     Ok(resp)
   }
 
-  #[instrument(name = "gcp::Bucket::download", skip(self), err, fields(bucket = %self.name))]
+  #[instrument(name = "gcp::Bucket::download", skip(self), err, fields(bucket = %self.name
+  ))]
   pub async fn download(&self, path: &str) -> Result<Option<Bytes>, GcsError> {
     let resp = self.download_resp(path).await?;
     if resp.status() == 404 {
@@ -265,7 +268,8 @@ impl Bucket {
     Ok(Some(bytes))
   }
 
-  #[instrument(name = "gcp::Bucket::download_stream", skip(self), err, fields(bucket = %self.name))]
+  #[instrument(name = "gcp::Bucket::download_stream", skip(self), err, fields(bucket = %self.name
+  ))]
   pub async fn download_stream(
     &self,
     path: &str,
@@ -278,7 +282,12 @@ impl Bucket {
       .map(|x| x.map(|x| x.1))
   }
 
-  #[instrument(name = "gcp::Bucket::download_stream_with_encoding", skip(self), err, fields(bucket = %self.name))]
+  #[instrument(
+    name = "gcp::Bucket::download_stream_with_encoding",
+    skip(self),
+    err,
+    fields(bucket = %self.name)
+  )]
   pub async fn download_stream_with_encoding(
     &self,
     path: &str,
@@ -358,7 +367,8 @@ impl Bucket {
     Ok(())
   }
 
-  #[instrument(name = "gcp::Bucket::upload", skip(self, data), err, fields(bucket = %self.name, size = %data.len()))]
+  #[instrument(name = "gcp::Bucket::upload", skip(self, data), err, fields(bucket = %self.name, size = %data.len()
+  ))]
   pub async fn upload(
     &self,
     path: &str,
@@ -370,7 +380,12 @@ impl Bucket {
       .await
   }
 
-  #[instrument(name = "gcp::Bucket::upload_stream", skip(self, stream), err, fields(bucket = %self.name))]
+  #[instrument(
+    name = "gcp::Bucket::upload_stream",
+    skip(self, stream),
+    err,
+    fields(bucket = %self.name)
+  )]
   pub async fn upload_stream<
     S: Stream<Item = Result<Bytes, std::io::Error>> + Send + Sync + 'static,
   >(
@@ -383,6 +398,72 @@ impl Bucket {
       .upload_inner(path, Part::stream(Body::wrap_stream(stream)), options)
       .await
   }
+
+  #[instrument(name = "gcp::Bucket::list", skip(self), err, fields(bucket = %self.name
+  ))]
+  pub async fn list(&self, path: &str) -> Result<Option<List>, GcsError> {
+    let path = percent_encoding::utf8_percent_encode(path, NON_ALPHANUMERIC);
+    let url = format!(
+      "{}/storage/v1/b/{}/o?prefix={}",
+      self.endpoint, self.name, path
+    );
+    let token = self
+      .client
+      .get_access_token()
+      .await
+      .map_err(GcsError::AccessToken)?;
+    let resp = self
+      .client
+      .http()
+      .get(url)
+      .bearer_auth(token)
+      .send()
+      .await?;
+
+    if resp.status() == 404 {
+      return Ok(None);
+    }
+    let resp = Bucket::error_if_failed(resp)?;
+    let json = resp.json().await?;
+    Ok(Some(json))
+  }
+
+  #[instrument(name = "gcp::Bucket::delete", skip(self), err, fields(bucket = %self.name
+  ))]
+  pub async fn delete_file(&self, path: &str) -> Result<bool, GcsError> {
+    let path = percent_encoding::utf8_percent_encode(path, NON_ALPHANUMERIC);
+    let url =
+      format!("{}/storage/v1/b/{}/o/{}", self.endpoint, self.name, path);
+    let token = self
+      .client
+      .get_access_token()
+      .await
+      .map_err(GcsError::AccessToken)?;
+    let resp = self
+      .client
+      .http()
+      .delete(url)
+      .bearer_auth(token)
+      .send()
+      .await?;
+
+    if resp.status() == 404 {
+      return Ok(true);
+    }
+    let _ = Bucket::error_if_failed(resp)?;
+    Ok(false)
+  }
+}
+
+#[derive(serde::Deserialize)]
+pub struct List {
+  #[serde(default)]
+  pub items: Vec<ListItem>,
+}
+
+#[derive(serde::Deserialize)]
+pub struct ListItem {
+  pub name: String,
 }
 
 #[derive(Clone)]
@@ -402,7 +483,8 @@ impl Queue {
     }
   }
 
-  #[instrument("gcp::Queue::task_buffer", skip(self), err, fields(queue_id = self.id))]
+  #[instrument("gcp::Queue::task_buffer", skip(self), err, fields(queue_id = self.id
+  ))]
   pub async fn task_buffer(
     &self,
     id: Option<String>,
@@ -474,7 +556,8 @@ impl BigQuery {
     }
   }
 
-  #[instrument("gcp::BigQuery::query", skip(self), err, fields(project = %self.project))]
+  #[instrument("gcp::BigQuery::query", skip(self), err, fields(project = %self.project
+  ))]
   pub async fn query(
     &self,
     query: &str,
@@ -504,7 +587,8 @@ impl BigQuery {
     Ok(json)
   }
 
-  #[instrument("gcp::BigQuery::get_query_results", skip(self), err, fields(project = %self.project))]
+  #[instrument("gcp::BigQuery::get_query_results", skip(self), err, fields(project = %self.project
+  ))]
   pub async fn get_query_results(
     &self,
     job_id: &str,
@@ -573,10 +657,16 @@ impl FakeGcsTester {
 
     assert!(self.proc.is_none());
 
-    #[cfg(target_os = "macos")]
+    #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
     let p = concat!(
       env!("CARGO_MANIFEST_DIR"),
       "/../tools/bin/darwin-arm64/fake-gcs-server"
+    );
+
+    #[cfg(all(target_os = "macos", target_arch = "x86_64"))]
+    let p = concat!(
+      env!("CARGO_MANIFEST_DIR"),
+      "/../tools/bin/darwin-amd64/fake-gcs-server"
     );
 
     #[cfg(target_os = "linux")]
@@ -587,7 +677,7 @@ impl FakeGcsTester {
 
     println!("starting fake gcs server: {}", p);
     let mut proc = std::process::Command::new(p)
-      .arg(&format!("-port={}", self.port))
+      .arg(format!("-port={}", self.port))
       .arg("-scheme=http")
       .arg("-backend=memory")
       .process_group(0)
