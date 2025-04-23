@@ -1,23 +1,33 @@
 // Copyright 2024 the JSR authors. All rights reserved. MIT license.
-import { Package, PackageVersionWithUser } from "../../../utils/api_types.ts";
-import { ExternalLink } from "../../../components/icons/ExternalLink.tsx";
-import { GitHub } from "../../../components/icons/GitHub.tsx";
+import type {
+  Package,
+  PackageDownloads,
+  PackageVersionWithUser,
+} from "../../../utils/api_types.ts";
+import TbBrandGithub from "tb-icons/TbBrandGithub";
 import { RuntimeCompatIndicator } from "../../../components/RuntimeCompatIndicator.tsx";
 import { getScoreTextColorClass } from "../../../utils/score_ring_color.ts";
-import { CheckmarkStamp } from "../../../components/icons/CheckmarkStamp.tsx";
-import { WarningTriangle } from "../../../components/icons/WarningTriangle.tsx";
+import {
+  TbAlertTriangleFilled,
+  TbExternalLink,
+  TbRosetteDiscountCheck,
+} from "tb-icons";
 import { Tooltip } from "../../../components/Tooltip.tsx";
-import twas from "$twas";
-import { gt, parse } from "$std/semver/mod.ts";
+import twas from "twas";
+import { greaterThan, parse } from "@std/semver";
+import { DownloadWidget } from "../(_islands)/DownloadWidget.tsx";
 
 interface PackageHeaderProps {
   package: Package;
   selectedVersion?: PackageVersionWithUser;
+  downloads: PackageDownloads | null;
 }
 
-export function PackageHeader(
-  { package: pkg, selectedVersion }: PackageHeaderProps,
-) {
+export function PackageHeader({
+  package: pkg,
+  selectedVersion,
+  downloads,
+}: PackageHeaderProps) {
   const runtimeCompat = (
     <RuntimeCompatIndicator runtimeCompat={pkg.runtimeCompat} />
   );
@@ -25,17 +35,24 @@ export function PackageHeader(
   const selectedVersionSemver = selectedVersion &&
     parse(selectedVersion.version);
   const isNewerPrerelease = selectedVersionSemver &&
+    selectedVersionSemver.prerelease &&
     selectedVersionSemver.prerelease.length !== 0 &&
     (pkg.latestVersion === null ||
-      gt(selectedVersionSemver, parse(pkg.latestVersion)));
+      greaterThan(selectedVersionSemver, parse(pkg.latestVersion)));
 
   return (
     <div class="space-y-6 mt-0 md:mt-4">
+      {pkg.isArchived && (
+        <div class="rounded border border-red-300 bg-red-100 flex items-center justify-center p-4">
+          This package has been archived, and as such it is read-only.
+        </div>
+      )}
+
       {selectedVersion && pkg.latestVersion &&
         pkg.latestVersion !== selectedVersion.version && (
         <div class="border border-jsr-yellow-500 bg-jsr-yellow-50 rounded py-3 px-4 md:text-center">
           <div class="text-sm md:text-base flex items-center justify-center gap-4 md:gap-2">
-            <WarningTriangle class="text-jsr-yellow-400 flex-none" />
+            <TbAlertTriangleFilled class="text-jsr-yellow-400 flex-none" />
             <span class="font-medium">
               This release {selectedVersion.yanked
                 ? (
@@ -48,8 +65,7 @@ export function PackageHeader(
                 ? (
                   <>
                     is a pre-release — the latest non-prerelease version of
-                    @{pkg
-                      .scope}/{pkg.name} is {pkg.latestVersion}.
+                    @{pkg.scope}/{pkg.name} is {pkg.latestVersion}.
                   </>
                 )
                 : (
@@ -111,7 +127,7 @@ export function PackageHeader(
 
               {selectedVersion?.rekorLogId && (
                 <Tooltip tooltip="Built and signed on GitHub Actions">
-                  <CheckmarkStamp class="stroke-green-500 size-6" />
+                  <TbRosetteDiscountCheck class="stroke-green-500 size-6" />
                 </Tooltip>
               )}
             </h1>
@@ -138,11 +154,14 @@ export function PackageHeader(
                   rel="noopener noreferrer"
                   aria-label="GitHub repository"
                 >
-                  <GitHub class="text-black !size-4" aria-hidden={true} />
+                  <TbBrandGithub
+                    class="text-black !size-4"
+                    aria-hidden
+                  />
                   <span>
                     {pkg.githubRepository.owner}/{pkg.githubRepository.name}
                   </span>
-                  <ExternalLink strokeWidth="2.25" />
+                  <TbExternalLink strokeWidth="2.25" class="size-4" />
                 </a>
               )}
             </div>
@@ -195,12 +214,22 @@ export function PackageHeader(
                     )}
                 >
                   {`${
-                    twas(new Date(selectedVersion.createdAt))
+                    twas(new Date(selectedVersion.createdAt).getTime())
                   } (${selectedVersion.version})`}
                 </div>
               </div>
             )}
           </div>
+
+          {downloads && downloads.total.length > 1 && (
+            <div>
+              <DownloadWidget
+                downloads={downloads.total}
+                scope={pkg.scope}
+                pkg={pkg.name}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

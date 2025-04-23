@@ -1,29 +1,15 @@
 // Copyright 2024 the JSR authors. All rights reserved. MIT license.
-import { Handlers, PageProps } from "$fresh/server.ts";
-import { State } from "../../util.ts";
-import { FullUser } from "../../utils/api_types.ts";
-import { AccountLayout } from "../account/(_components)/AccountLayout.tsx";
+import { HttpError } from "fresh";
+import { AccountLayout } from "./(_components)/AccountLayout.tsx";
 import { QuotaCard } from "../../components/QuotaCard.tsx";
-import { Head } from "$fresh/runtime.ts";
+import { define } from "../../util.ts";
+import { TicketModal } from "../../islands/TicketModal.tsx";
 
-interface Data {
-  user: FullUser;
-}
-
-export default function AccountInvitesPage({ data }: PageProps<Data, State>) {
-  const requestLimitIncreaseBody = `Hello JSR team,
-I would like to request a scope quota increase for my account.
-My user ID is '${data.user!.id}'.
-
-Reason: `;
-
+export default define.page<typeof handler>(function AccountInvitesPage({
+  data,
+}) {
   return (
     <AccountLayout user={data.user} active="Settings">
-      <Head>
-        <title>
-          Account Settings - JSR
-        </title>
-      </Head>
       <div class="flex flex-col gap-12">
         <div>
           <h2 class="text-xl mb-2 font-bold">Quotas</h2>
@@ -46,16 +32,36 @@ Reason: `;
               </div>
             </div>
             <div>
-              <a
-                href={`mailto:quotas@jsr.io?subject=${
-                  encodeURIComponent(
-                    `User quota increase for ${data.user!.name}`,
-                  )
-                }&body=${encodeURIComponent(requestLimitIncreaseBody)}`}
-                class="button-primary"
+              <TicketModal
+                user={data.user}
+                style="primary"
+                kind="user_scope_quota_increase"
+                title="Request scope quota increase"
+                description={
+                  <>
+                    <p class="mt-4 text-jsr-gray-600">
+                      We are unable to increase your scope quota without a valid
+                      reason, and we require that you make use of your existing
+                      scopes before requesting an increase. Please be aware of
+                      the{" "}
+                      <a
+                        href="/docs/usage-policy#scope-name-squatting"
+                        class="link"
+                      >
+                        scope name squatting policy
+                      </a>.
+                    </p>
+                  </>
+                }
+                fields={[{
+                  name: "message",
+                  label: "Reason",
+                  type: "textarea",
+                  required: true,
+                }]}
               >
                 Request user quota increase
-              </a>
+              </TicketModal>
             </div>
           </div>
         </div>
@@ -74,18 +80,21 @@ Reason: `;
       </div>
     </AccountLayout>
   );
-}
+});
 
-export const handler: Handlers<Data, State> = {
-  async GET(_, ctx) {
+export const handler = define.handlers({
+  async GET(ctx) {
     const [currentUser] = await Promise.all([
       ctx.state.userPromise,
     ]);
     if (currentUser instanceof Response) return currentUser;
-    if (!currentUser) return ctx.renderNotFound();
+    if (!currentUser) throw new HttpError(404, "No signed in user found.");
 
-    return ctx.render({
-      user: currentUser,
-    });
+    ctx.state.meta = { title: "Account Settings - JSR" };
+    return {
+      data: {
+        user: currentUser,
+      },
+    };
   },
-};
+});

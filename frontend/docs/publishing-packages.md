@@ -260,9 +260,9 @@ registry.
 
 ```shell
 # deno
-$ deno publish --dry-run
+deno publish --dry-run
 # npm
-$ npx jsr publish --dry-run
+npx jsr publish --dry-run
 # yarn
 yarn dlx jsr publish --dry-run
 # pnpm
@@ -282,9 +282,9 @@ Enter the root directory of your package (containing the `jsr.json` /
 
 ```shell
 # deno
-$ deno publish
+deno publish
 # npm
-$ npx jsr publish
+npx jsr publish
 # yarn
 yarn dlx jsr publish
 # pnpm
@@ -338,7 +338,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write # The OIDC ID token is used for authentication with JSR.    
+      id-token: write # The OIDC ID token is used for authentication with JSR.
     steps:
       - uses: actions/checkout@v4
       - run: npx jsr publish
@@ -399,9 +399,9 @@ You may also exclude certain files via the `exclude` option:
 ```
 
 When using Deno, the `include` and `exclude` options in `deno.json` are used for
-many other Deno subcommands as well, such as `deno test` and `deno bundle`. You
-can use `publish.include` and `publish.exclude` in your `deno.json` file to
-specify options that only apply to `deno publish`.
+many other Deno subcommands as well, such as `deno test`, `deno lint` and
+`deno fmt`. You can use `publish.include` and `publish.exclude` in your
+`deno.json` file to specify options that only apply to `deno publish`.
 
 ```json
 // deno.json
@@ -433,7 +433,7 @@ because you have `"exports"` pointing to it (or a subdirectory of it). In this
 case, you can un-ignore the `dist/` directory by using a negation in the
 `exclude` field in your `jsr.json` / `deno.json` file.
 
-```jsonc
+```json
 // jsr.json
 {
   "name": "@luca/greet",

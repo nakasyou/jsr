@@ -24,11 +24,11 @@ locals {
     "EMAIL_FROM"      = "help@${var.domain_name}"
     "EMAIL_FROM_NAME" = var.email_from_name
 
-    "PUBLISH_QUEUE_ID"           = google_cloud_tasks_queue.publishing_tasks.id
-    "NPM_TARBALL_BUILD_QUEUE_ID" = google_cloud_tasks_queue.npm_tarball_build_tasks.id
+    "PUBLISH_QUEUE_ID"           = "projects/${var.gcp_project}/locations/us-central1/queues/${local.publishing_tasks_queue_name}"
+    "NPM_TARBALL_BUILD_QUEUE_ID" = "projects/${var.gcp_project}/locations/us-central1/queues/${local.npm_tarball_build_tasks_queue_name}"
 
     "LOGS_BIGQUERY_TABLE_ID" = "${data.google_bigquery_dataset.default.dataset_id}._Default"
-    "GCP_PROJECT_ID"           = var.gcp_project
+    "GCP_PROJECT_ID"         = var.gcp_project
   }
 }
 
@@ -54,6 +54,13 @@ resource "google_cloud_run_v2_service" "registry_api" {
       args = [
         "--cloud_trace", "--api", "--tasks=false", "--database_pool_size=4"
       ]
+
+      resources {
+        limits = {
+          cpu    = "1"
+          memory = "1Gi"
+        }
+      }
 
       dynamic "env" {
         for_each = local.api_envs
@@ -98,6 +105,16 @@ resource "google_cloud_run_v2_service" "registry_api" {
         value_source {
           secret_key_ref {
             secret  = google_secret_manager_secret.orama_package_index_id.id
+            version = "latest"
+          }
+        }
+      }
+
+      env {
+        name = "ORAMA_SYMBOLS_INDEX_ID"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.orama_symbols_index_id.id
             version = "latest"
           }
         }
@@ -230,6 +247,16 @@ resource "google_cloud_run_v2_service" "registry_api_tasks" {
           }
         }
       }
+
+      env {
+        name = "ORAMA_SYMBOLS_INDEX_ID"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.orama_symbols_index_id.id
+            version = "latest"
+          }
+        }
+      }
     }
 
     vpc_access {
@@ -297,6 +324,12 @@ resource "google_secret_manager_secret_iam_member" "orama_package_private_api_ke
 
 resource "google_secret_manager_secret_iam_member" "orama_package_index_id" {
   secret_id = google_secret_manager_secret.orama_package_index_id.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.registry_api.email}"
+}
+
+resource "google_secret_manager_secret_iam_member" "orama_symbols_index_id" {
+  secret_id = google_secret_manager_secret.orama_symbols_index_id.id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.registry_api.email}"
 }

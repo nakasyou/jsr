@@ -19,7 +19,7 @@ In this example, we add the most recent version of
 [`@luca/flag`](https://jsr.io/@luca/flag) to your project.
 
 ```bash
-deno add @luca/flag
+deno add jsr:@luca/flag
 ```
 
 After executing this command, you will have an import map entry in `deno.json`
@@ -91,5 +91,5 @@ package. This command will display a list of all dependencies, including their
 version constraints.
 
 ```shell
-$ deno info jsr:@std/fs
+deno info jsr:@std/fs
 ```

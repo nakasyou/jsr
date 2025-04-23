@@ -4,8 +4,8 @@ description: JSR is a new modern package registry for JavaScript and TypeScript.
 ---
 
 The JavaScript Registry (**JSR**) is a modern package registry for JavaScript
-and TypeScript. JSR works with many runtimes (Node.js, Deno, browsers, and more)
-and is backwards compatible with npm.
+and TypeScript. JSR works with many runtimes (Node.js, Deno, Bun, browsers, and
+more) and is backwards compatible with npm.
 [Learn more about why we built JSR.](/docs/why)
 
 ## Using JSR packages
@@ -16,10 +16,16 @@ project.
 
 ```bash
 # deno
-deno add @luca/cases
+deno add jsr:@luca/cases
 
-# npm (use any of npx, yarn dlx, pnpm dlx, or bunx)
-npx jsr add @luca/cases
+# pnpm 10.9+
+pnpm add jsr:@luca/cases
+
+# yarn 4.9+
+yarn add jsr:@luca/cases
+
+# npm, bun, and older versions of yarn or pnpm
+npx jsr add @luca/cases # replace npx with any of yarn dlx, pnpm dlx, or bunx
 ```
 
 After adding the package, you can import and use it in ES modules like so:

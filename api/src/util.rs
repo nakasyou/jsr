@@ -114,6 +114,7 @@ where
 pub struct CacheDuration(pub usize);
 impl CacheDuration {
   pub const ONE_MINUTE: CacheDuration = CacheDuration(60);
+  pub const ONE_DAY: CacheDuration = CacheDuration(60 * 60 * 24);
 }
 
 pub fn cache<H, HF>(
@@ -156,7 +157,7 @@ pub async fn auth_middleware(req: Request<Body>) -> ApiResult<Request<Body>> {
   let iam_info =
     match token {
       Some((AuthorizationToken::Bearer(token), sudo)) => {
-        span.record("token.kind", &field::display("bearer"));
+        span.record("token.kind", field::display("bearer"));
         if let Some(token) =
           db.get_token_by_hash(&crate::token::hash(token)).await?
         {
@@ -167,7 +168,7 @@ pub async fn auth_middleware(req: Request<Body>) -> ApiResult<Request<Body>> {
           }
 
           let user = db.get_user(token.user_id).await?.unwrap();
-          span.record("user.id", &field::display(user.id));
+          span.record("user.id", field::display(user.id));
 
           if user.is_blocked {
             return Err(ApiError::Blocked);
@@ -179,10 +180,10 @@ pub async fn auth_middleware(req: Request<Body>) -> ApiResult<Request<Body>> {
         }
       }
       Some((AuthorizationToken::GithubOIDC(token), _)) => {
-        span.record("token.kind", &field::display("githuboidc"));
+        span.record("token.kind", field::display("githuboidc"));
 
         let claims = verify_oidc_token(token).await?;
-        span.record("repo.id", &field::display(claims.repository_id));
+        span.record("repo.id", field::display(claims.repository_id));
 
         let aud: GithubOidcTokenAud = serde_json::from_str(&claims.aud)
           .map_err(|err| ApiError::InvalidOidcToken {
@@ -191,7 +192,7 @@ pub async fn auth_middleware(req: Request<Body>) -> ApiResult<Request<Body>> {
 
         let user = db.get_user_by_github_id(claims.actor_id).await?;
         if let Some(user) = &user {
-          span.record("user.id", &field::display(user.id));
+          span.record("user.id", field::display(user.id));
         }
 
         IamInfo::from((claims.repository_id, aud, user))
@@ -274,6 +275,10 @@ where
 
 pub fn search(req: &Request<Body>) -> Option<&str> {
   req.query("query").map(|q| q.as_str())
+}
+
+pub fn sort(req: &Request<Body>) -> Option<&str> {
+  req.query("sortBy").map(|q| q.as_str())
 }
 
 pub fn pagination(req: &Request<Body>) -> (i64, i64) {
@@ -547,9 +552,17 @@ pub mod test {
 
       let scope_name = "scope".try_into().unwrap();
 
-      db.create_scope(&scope_name, user1.user.id).await.unwrap();
+      db.create_scope(&user1.user.id, false, &scope_name, user1.user.id)
+        .await
+        .unwrap();
       let (scope, _, _) = db
-        .update_scope_limits(&scope_name, Some(250), Some(200), Some(1000))
+        .update_scope_limits(
+          &staff_user.user.id,
+          &scope_name,
+          Some(250),
+          Some(200),
+          Some(1000),
+        )
         .await
         .unwrap();
 
@@ -659,7 +672,7 @@ pub mod test {
     auth: Option<&'t str>,
   }
 
-  impl<'s, 't> TestHttpClient<'s, 't> {
+  impl<'s> TestHttpClient<'s, '_> {
     pub fn get<U: AsRef<str>>(&'s mut self, uri: U) -> TestHttpCall<'s> {
       TestHttpCall::new(
         self.service,

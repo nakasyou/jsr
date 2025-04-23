@@ -57,7 +57,7 @@ pub struct ApiPublishingTask {
   pub id: Uuid,
   pub status: ApiPublishingTaskStatus,
   pub error: Option<ApiPublishingTaskError>,
-  pub user_id: Option<Uuid>,
+  pub user: Option<ApiUser>,
   pub package_scope: ScopeName,
   pub package_name: PackageName,
   pub package_version: Version,
@@ -65,13 +65,13 @@ pub struct ApiPublishingTask {
   pub updated_at: DateTime<Utc>,
 }
 
-impl From<PublishingTask> for ApiPublishingTask {
-  fn from(value: PublishingTask) -> Self {
+impl From<(PublishingTask, Option<UserPublic>)> for ApiPublishingTask {
+  fn from((value, user): (PublishingTask, Option<UserPublic>)) -> Self {
     Self {
       id: value.id,
       status: value.status.into(),
       error: value.error.map(Into::into),
-      user_id: value.user_id,
+      user: user.map(Into::into),
       package_scope: value.package_scope,
       package_name: value.package_name,
       package_version: value.package_version,
@@ -81,7 +81,39 @@ impl From<PublishingTask> for ApiPublishingTask {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct ApiDependencyGraphItem {
+  pub id: usize,
+  pub dependency: super::package::DependencyKind,
+  pub children: indexmap::IndexSet<usize>,
+  pub size: Option<u64>,
+  pub media_type: Option<String>,
+}
+
+impl
+  From<(
+    super::package::DependencyKind,
+    super::package::DependencyInfo,
+  )> for ApiDependencyGraphItem
+{
+  fn from(
+    (kind, info): (
+      super::package::DependencyKind,
+      super::package::DependencyInfo,
+    ),
+  ) -> Self {
+    Self {
+      id: info.id,
+      dependency: kind,
+      children: info.children,
+      size: info.size,
+      media_type: info.media_type.map(|media_type| media_type.to_string()),
+    }
+  }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ApiUser {
   pub id: Uuid,
@@ -133,6 +165,7 @@ pub struct ApiFullUser {
   pub scope_usage: i32,
   pub scope_limit: i32,
   pub invite_count: u64,
+  pub newer_ticket_messages_count: u64,
 }
 
 impl From<User> for ApiFullUser {
@@ -150,6 +183,7 @@ impl From<User> for ApiFullUser {
       scope_usage: user.scope_usage as i32,
       scope_limit: user.scope_limit,
       invite_count: user.invite_count as u64,
+      newer_ticket_messages_count: user.newer_ticket_messages_count as u64,
     }
   }
 }
@@ -438,9 +472,12 @@ pub struct ApiPackage {
   pub updated_at: DateTime<Utc>,
   pub created_at: DateTime<Utc>,
   pub version_count: u64,
+  pub dependency_count: u64,
+  pub dependent_count: u64,
   pub score: Option<u32>,
   pub latest_version: Option<String>,
   pub when_featured: Option<DateTime<Utc>>,
+  pub is_archived: bool,
 }
 
 impl From<PackageWithGitHubRepoAndMeta> for ApiPackage {
@@ -458,12 +495,15 @@ impl From<PackageWithGitHubRepoAndMeta> for ApiPackage {
       updated_at: package.updated_at,
       created_at: package.created_at,
       version_count: package.version_count as u64,
+      dependency_count: 0,
+      dependent_count: 0,
       score: package
         .latest_version
         .as_ref()
         .map(|_| score.score_percentage()),
       latest_version: package.latest_version,
       when_featured: package.when_featured,
+      is_archived: package.is_archived,
     }
   }
 }
@@ -481,6 +521,7 @@ pub enum ApiUpdatePackageRequest {
   GithubRepository(Option<ApiUpdatePackageGithubRepositoryRequest>),
   RuntimeCompat(ApiRuntimeCompat),
   IsFeatured(bool),
+  IsArchived(bool),
 }
 
 #[derive(Debug, Deserialize)]
@@ -583,9 +624,11 @@ pub struct ApiPackageVersion {
 #[serde(rename_all = "camelCase", tag = "kind")]
 #[allow(clippy::large_enum_variant)]
 pub enum ApiPackageVersionDocs {
+  #[serde(rename_all = "camelCase")]
   Content {
     version: ApiPackageVersion,
     css: Cow<'static, str>,
+    comrak_css: Cow<'static, str>,
     script: Cow<'static, str>,
     breadcrumbs: Option<String>,
     toc: Option<String>,
@@ -641,6 +684,8 @@ pub enum ApiSource {
 pub struct ApiPackageVersionSource {
   pub version: ApiPackageVersion,
   pub css: Cow<'static, str>,
+  pub comrak_css: Cow<'static, str>,
+  pub script: Cow<'static, str>,
   pub source: ApiSource,
 }
 
@@ -962,4 +1007,83 @@ pub struct ApiPackageDownloads {
 pub struct ApiPackageDownloadsRecentVersion {
   pub version: Version,
   pub downloads: Vec<ApiDownloadDataPoint>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ApiTicket {
+  pub id: Uuid,
+  pub kind: TicketKind,
+  pub creator: ApiUser,
+  pub meta: serde_json::Value,
+  pub closed: bool,
+  pub messages: Vec<ApiTicketMessage>,
+  pub updated_at: DateTime<Utc>,
+  pub created_at: DateTime<Utc>,
+}
+
+impl From<(Ticket, User, Vec<(TicketMessage, UserPublic)>)> for ApiTicket {
+  fn from(
+    (value, user, messages): (Ticket, User, Vec<(TicketMessage, UserPublic)>),
+  ) -> Self {
+    Self {
+      id: value.id,
+      kind: value.kind,
+      creator: user.into(),
+      meta: value.meta,
+      closed: value.closed,
+      messages: messages.into_iter().map(|message| message.into()).collect(),
+      updated_at: value.updated_at,
+      created_at: value.created_at,
+    }
+  }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ApiTicketMessage {
+  pub author: ApiUser,
+  pub message: String,
+  pub updated_at: DateTime<Utc>,
+  pub created_at: DateTime<Utc>,
+}
+
+impl From<(TicketMessage, UserPublic)> for ApiTicketMessage {
+  fn from((value, user): (TicketMessage, UserPublic)) -> Self {
+    Self {
+      author: user.into(),
+      message: value.message,
+      updated_at: value.updated_at,
+      created_at: value.created_at,
+    }
+  }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ApiAdminUpdateTicketRequest {
+  pub closed: Option<bool>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ApiAuditLog {
+  pub actor: ApiUser,
+  pub action: String,
+  pub is_sudo: bool,
+  pub meta: serde_json::Value,
+  pub created_at: DateTime<Utc>,
+}
+
+impl From<(AuditLog, UserPublic)> for ApiAuditLog {
+  fn from((value, user): (AuditLog, UserPublic)) -> Self {
+    assert_eq!(value.actor_id, user.id);
+    Self {
+      actor: user.into(),
+      action: value.action,
+      is_sudo: value.is_sudo,
+      meta: value.meta,
+      created_at: value.created_at,
+    }
+  }
 }

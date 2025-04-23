@@ -2,11 +2,9 @@
 import { useEffect } from "preact/hooks";
 
 declare global {
-  interface Window {
-    particlesJS: {
-      load: (id: string, path: object, callback: () => void) => void;
-    };
-  }
+  const particlesJS: {
+    load: (id: string, path: object, callback: () => void) => void;
+  };
 }
 
 const config = {
@@ -114,7 +112,7 @@ export function HomepageHeroParticles() {
     const prefersReducedMotion = reducedMotionQuery.matches;
     if (prefersReducedMotion) config.particles.move.speed = 0;
 
-    window.particlesJS.load(
+    particlesJS.load(
       "particles-js",
       config,
       () => {
@@ -127,5 +125,6 @@ export function HomepageHeroParticles() {
     );
   }, []);
 
+  // deno-lint-ignore jsx-no-useless-fragment
   return <></>;
 }
